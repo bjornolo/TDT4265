@@ -12,42 +12,29 @@ def pre_process_images(X: np.ndarray):
     """
     assert X.shape[1] == 784,\
         f"X.shape[1]: {X.shape[1]}, should be 784"
-    X = X/(255/2)
-    X = X-1
-    ones= np.ones((X.shape[0], 1))
-    X= np.append(X, ones, axis=1)
-    
+    # TODO implement this function (Task 2a)
     return X
-
-
 
 
 def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray) -> float:
     """
     Args:
-        targets: labels/targets of each image of shape: [batch Size, 1]
+        targets: labels/targets of each image of shape: [batch size, 1]
         outputs: outputs of model of shape: [batch size, 1]
     Returns:
         Cross entropy error (float)
     """
-    cost=-(targets*np.log(outputs)+(1-targets)*np.log(1-outputs))
-    cel = np.average(cost)
-    #print (cost.shape)
-    #print (cost) 
-    print (cel.shape)
-    print (cel)
+    # TODO implement this function (Task 2a)
     assert targets.shape == outputs.shape,\
         f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
-    return cel
+    return 0
 
-def sigmoid(z):
-    return 1/(1 + np.exp(-z)) 
 
 class BinaryModel:
 
     def __init__(self):
         # Define number of input nodes
-        self.I = 785
+        self.I = None
         self.w = np.zeros((self.I, 1))
         self.grad = None
 
@@ -58,9 +45,8 @@ class BinaryModel:
         Returns:
             y: output of model with shape [batch size, 1]
         """
-        z = X.dot(self.w)
-        y=sigmoid(z)
-        return y
+        # TODO implement this function (Task 2a)
+        return None
 
     def backward(self, X: np.ndarray, outputs: np.ndarray, targets: np.ndarray) -> None:
         """
@@ -70,17 +56,13 @@ class BinaryModel:
             outputs: outputs of model of shape: [batch size, 1]
             targets: labels/targets of each image of shape: [batch size, 1]
         """
-        
+        # TODO implement this function (Task 2a)
         assert targets.shape == outputs.shape,\
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
         self.grad = np.zeros_like(self.w)
         assert self.grad.shape == self.w.shape,\
             f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
-        self.grad = (-(targets-outputs))*X
-        #print(targets-outputs)
-        #print(X[1])
-        #print((targets-outputs)*X[1])
-        
+
     def zero_grad(self) -> None:
         self.grad = None
 
@@ -108,18 +90,6 @@ def gradient_approximation_test(model: BinaryModel, X: np.ndarray, Y: np.ndarray
         logits = model.forward(X)
         model.backward(X, logits, Y)
         difference = gradient_approximation - model.grad[i, 0]
-        #print('X')
-        #print(X)
-        #print(X.shape)
-        #print('logits')
-        #print(logits)
-        #print(logits.shape)
-        #print('Y')
-        #print(Y)
-        #print(Y.shape)
-        #print('gradient')
-        #print(model.grad)
-        #print(model.grad.shape)
         assert abs(difference) <= epsilon**2,\
             f"Calculated gradient is incorrect. " \
             f"Approximation: {gradient_approximation}, actual gradient: {model.grad[i,0]}\n" \
@@ -144,6 +114,7 @@ def main():
     np.testing.assert_almost_equal(
         logits.mean(), .5,
         err_msg="Since the weights are all 0's, the sigmoid activation should be 0.5")
+
     # Gradient approximation check for 100 images
     X_train = X_train[:100]
     Y_train = Y_train[:100]
