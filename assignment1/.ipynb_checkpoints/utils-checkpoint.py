@@ -23,12 +23,11 @@ def batch_loader(
     if not drop_last:
         num_batches = int(np.ceil(len(X) / batch_size))
     indices = list(range(len(X)))
-   
+    np.random.shuffle(indices)
     #print (" indices",  indices)
 
     # TODO (task 2e) implement dataset shuffling here.
-     
-    np.random.shuffle(indices)
+
     for i in range(num_batches):
         # select a set of indices for each batch of samples
         batch_indices = indices[i*batch_size:(i+1)*batch_size]
