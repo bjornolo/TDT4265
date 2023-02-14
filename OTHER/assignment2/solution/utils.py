@@ -26,17 +26,19 @@ def batch_loader(
     indices = list(range(len(X)))
 
     # TODO (copy from last assignment) implement dataset shuffling here.
-    np.random.shuffle(indices)
+    if shuffle: #sol
+        np.random.shuffle(indices) #sol
+
     for i in range(num_batches):
         # select a set of indices for each batch of samples
         batch_indices = indices[i*batch_size:(i+1)*batch_size]
         x = X[batch_indices]
         y = Y[batch_indices]
         # return both images (x) and labels (y)
-        yield (x,y)
+        yield (x, y)
 
 
-### NO NEED TO EDIT ANY CODE BELOW THIS ###
+### NO NEED TO EDIT ANY CODE BELOW THIS ### 
 
 
 def load_full_mnist():
@@ -85,9 +87,7 @@ def plot_loss(loss_dict: dict, label: str = None, npoints_to_average=1, plot_var
         mean_loss.append(np.mean(points))
         loss_std.append(np.std(points))
         steps.append(step)
-    plt.plot(steps, mean_loss,
-             label=f"{label} (mean over {npoints_to_average} steps)")
+    plt.plot(steps, mean_loss, label=f"{label} (mean over {npoints_to_average} steps)")
     plt.fill_between(
-        steps, np.array(mean_loss) -
-        np.array(loss_std), np.array(mean_loss) + loss_std,
+        steps, np.array(mean_loss) - np.array(loss_std), np.array(mean_loss) + loss_std,
         alpha=.2, label=f"{label} variance over {npoints_to_average} steps")
