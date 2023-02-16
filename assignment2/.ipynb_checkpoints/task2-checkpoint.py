@@ -16,9 +16,12 @@ def calculate_accuracy(X: np.ndarray, targets: np.ndarray, model: SoftmaxModel) 
         Accuracy (float)
     """
     # TODO: Implement this function (copy from last assignment)
-    accuracy = 0
-    return accuracy
 
+    accuracy = 0
+    outputs = model.forward(X) 
+    prediction = outputs.argmax(axis=1)
+    target = targets.argmax(axis=1)
+    return np.equal(prediction, target).mean()
 
 class SoftmaxTrainer(BaseTrainer):
 
@@ -47,13 +50,25 @@ class SoftmaxTrainer(BaseTrainer):
             loss value (float) on batch
         """
         # TODO: Implement this function (task 2c)
-
+        
         loss = 0
-
-        loss = cross_entropy_loss(Y_batch, logits)  # sol
-
+        self.model.zero_grad()
+        outputs=self.model.forward(X_batch)
+        self.model.backward(X_batch, outputs, Y_batch)
+        for layer in range(len(self.model.ws)):
+            if self.use_momentum:
+                prevoius_grad=self.previous_grads[layer]
+                delta_w=self.momentum_gamma*prevoius_grad+self.model.grads[layer]
+                self.model.ws[layer] = self.model.ws[layer]-(self.learning_rate*delta_w)
+                self.previous_grads[layer]=np.copy(delta_w)
+            else:
+                self.model.ws[layer] = self.model.ws[layer]-(self.learning_rate*self.model.grads[layer])
+        loss = cross_entropy_loss(Y_batch, outputs)  
+        
         return loss
-
+        
+        
+        
     def validation_step(self):
         """
         Perform a validation step to evaluate the model at the current step for the validation set.
@@ -80,16 +95,16 @@ class SoftmaxTrainer(BaseTrainer):
 def main():
     # hyperparameters DO NOT CHANGE IF NOT SPECIFIED IN ASSIGNMENT TEXT
     num_epochs = 50
-    learning_rate = .1
+    learning_rate = .02
     batch_size = 32
     neurons_per_layer = [64, 10]
     momentum_gamma = .9  # Task 3 hyperparameter
     shuffle_data = True
 
     # Settings for task 2 and 3. Keep all to false for task 2.
-    use_improved_sigmoid = False
-    use_improved_weight_init = False
-    use_momentum = False
+    use_improved_sigmoid = True
+    use_improved_weight_init = True
+    use_momentum = True
     use_relu = False
 
     # Load dataset
@@ -111,7 +126,6 @@ def main():
         X_train, Y_train, X_val, Y_val,
     )
     train_history, val_history = trainer.train(num_epochs)
-
     print("Final Train Cross Entropy Loss:",
           cross_entropy_loss(Y_train, model.forward(X_train)))
     print("Final Validation Cross Entropy Loss:",

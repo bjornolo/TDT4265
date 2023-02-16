@@ -94,6 +94,7 @@ class SoftmaxModel:
 
         self.hidden_a = [np.zeros(size, dtype=float) for size in self.neurons_per_layer[:-1]]
         self.hidden_z = [np.zeros(size, dtype=float) for size in self.neurons_per_layer[:-1]]
+        print(self.hidden_a.shape)
 
         weight_init = SoftmaxModel._fanin_normal_init if use_improved_weight_init else SoftmaxModel._uniform_init
 
@@ -119,7 +120,9 @@ class SoftmaxModel:
         """
         for layer, w in enumerate(self.ws[:-1]):
             self.hidden_z[layer] = (Z := np.dot(X, w))
+            print(self.hidden_z[layer].shape)
             self.hidden_a[layer] = (X := self.sigmoid(Z))
+            print(self.hidden_a[layer].shape)
         return softmax(np.dot(X, self.ws[-1]))
 
     def backward(self, X: np.ndarray, outputs: np.ndarray,
