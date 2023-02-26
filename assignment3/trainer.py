@@ -4,6 +4,7 @@ import time
 import collections
 import utils
 import pathlib
+from statistics import mean 
 
 
 def compute_loss_and_accuracy(
@@ -22,6 +23,9 @@ def compute_loss_and_accuracy(
     """
     average_loss = 0
     accuracy = 0
+    num_correct=0
+    total_samples=0
+    loss=[]
     # TODO: Implement this function (Task  2a)
     with torch.no_grad():
         for (X_batch, Y_batch) in dataloader:
@@ -32,8 +36,14 @@ def compute_loss_and_accuracy(
             output_probs = model(X_batch)
 
             # Compute Loss and Accuracy
-
+            prediction= output_probs.argmax(dim=1)
+            num_correct += (prediction == Y_batch).sum().item()
+            total_samples += X_batch.shape[0]
+            loss.append(loss_criterion(output_probs,Y_batch).item())
             # Predicted class is the max index over the column dimension
+  
+    average_loss=mean(loss)
+    accuracy=num_correct/total_samples
     return average_loss, accuracy
 
 
@@ -63,7 +73,7 @@ class Trainer:
         print(self.model)
 
         # Define our optimizer. SGD = Stochastich Gradient Descent
-        self.optimizer = torch.optim.SGD(self.model.parameters(),
+        self.optimizer = torch.optim.Adam(self.model.parameters(),
                                          self.learning_rate)
 
         # Load our dataset
@@ -106,6 +116,14 @@ class Trainer:
             f"Validation Accuracy: {validation_acc:.3f}",
             sep=", ")
         self.model.train()
+
+    def test(self):
+        self.model.eval()
+        Test_loss, Test_acc = compute_loss_and_accuracy(
+            self.dataloader_test, self.model, self.loss_criterion
+        )
+        print("Test Loss: ", Test_loss)
+        print("Test Accuracy: ", Test_acc)
 
     def should_early_stop(self):
         """
@@ -175,7 +193,6 @@ class Trainer:
                     if self.should_early_stop():
                         print("Early stopping.")
                         return
-
     def save_model(self):
         def is_best_model():
             """
