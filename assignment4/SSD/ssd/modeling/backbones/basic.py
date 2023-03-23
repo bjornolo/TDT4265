@@ -126,7 +126,6 @@ class BasicModel(torch.nn.Module):
             torch.nn.ReLU()
         )
 
-
     def forward(self, x):
         """
         The forward functiom should output features with shape:
@@ -156,4 +155,3 @@ class BasicModel(torch.nn.Module):
         assert len(out_features) == len(self.output_feature_shape),\
             f"Expected that the length of the outputted features to be: {len(self.output_feature_shape)}, but it was: {len(out_features)}"
         return tuple(out_features)
-
